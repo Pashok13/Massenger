@@ -15,12 +15,18 @@ namespace Messenger
         public int UserId			{ get; set; }
         public int RecepientId		{ get; set; }
 		public DateTime DateOfSend	{ get; set; } 
-        public DateTime TimeOfSend  { get; set; }
+        public TimeSpan TimeOfSend  { get; set; }
         public string TextMessage   { get; set; }
 
         [ForeignKey("UserId")]
         public Users User           { get; set; }
         [ForeignKey("RecepientId")]
         public Recepients Recepient { get; set; }
+
+		public Messages()
+		{
+			DateOfSend = DateTime.Now.Date;
+			TimeOfSend = DateTime.Now.TimeOfDay;
+		}
     }
 }

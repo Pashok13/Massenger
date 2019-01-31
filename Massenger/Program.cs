@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Messenger
@@ -11,59 +12,134 @@ namespace Messenger
     {
 
 		public static MessandgerContext MessendgerDB;
+		public static bool isAutorize = false;
+		public static Users CurrentUser;
 
 		static void AddUser()
 		{
-			Users User = new Users();
+			CurrentUser = new Users();
 
 			Console.WriteLine("Input user data:");
 
 			Console.Write("Name: ");
-			User.Name = Console.ReadLine();
+			CurrentUser.Name = Console.ReadLine();
 
 			do
 			{
 				Console.Write("Number: ");
-				User.UserPhone = Console.ReadLine();
-				Users alreadyRegisteredUser = MessendgerDB.Users.FirstOrDefault(p => p.UserPhone == User.UserPhone);
+				CurrentUser.UserPhone = Console.ReadLine();
+				Users alreadyRegisteredUser = MessendgerDB.Users.FirstOrDefault(p => p.UserPhone == CurrentUser.UserPhone);
 				if (alreadyRegisteredUser != null)
 				{
-					Console.WriteLine("This phone number is already register");
+					Console.Clear();
+					Console.WriteLine(" >> Error: This phone number is already register. Press any button to continue <<");
+					Console.ReadKey();
 					return;
 				}
 			}
-			while (User.UserPhone == null);
+			while (CurrentUser.UserPhone == null);
 
 			do
 			{
 				Console.Write("E-mail adress: ");
-				User.Adress = Console.ReadLine();
-
+				CurrentUser.Adress = Console.ReadLine();
 			}
-			while (User.Adress == null);
+			while (CurrentUser.Adress == null);
 
 			Console.Write("Password: ");
-			User.Password = Console.ReadLine();
+			CurrentUser.Password = Console.ReadLine();
 
-			MessendgerDB.Users.Add(User);
+			Recepients Recepient = new Recepients();
+			Recepient.Name = CurrentUser.Name;
+			Recepient.Adress = CurrentUser.Adress;
+
+			MessendgerDB.Users.Add(CurrentUser);
+			MessendgerDB.Recepients.Add(Recepient);
 			MessendgerDB.SaveChanges();
 
-			Console.WriteLine($"User {User.Name} are added!");
-
+			Console.WriteLine($"User {CurrentUser.Name} are sucesfully added!");
+			isAutorize = true;
 		}
 
-		static void LogIn()
+		static void Autorization()
 		{
-			Console.WriteLine("You are login!");
+			string phoneNumber;
+			string password;
+
+			do
+			{
+				Console.Clear();
+				Console.Write("Number: ");
+				phoneNumber = Console.ReadLine();
+
+				CurrentUser = MessendgerDB.Users.FirstOrDefault(p => p.UserPhone == phoneNumber);
+
+				if (CurrentUser == null)
+				{
+					Console.WriteLine("Undefined phone number. Press any key to continue");
+					Console.ReadKey();
+				}
+			}
+			while (CurrentUser == null);
+
+			Console.Write("Password: ");
+			password = Console.ReadLine();
+
+			if (password == CurrentUser.Password)
+			{
+				isAutorize = true;
+			}
+			else
+			{
+				Console.WriteLine(" >> Error: Invalid data. Please, check in or try again. Press any key to continue<<");
+				Console.ReadKey();
+			}
+
 		}
 
-		// remake for params
-		static void StartPage()
+		static void NewMessege()
+		{
+			Recepients currentRecepient = new Recepients();
+			Recepients recepient;
+			Messages message = new Messages();
+
+			do
+			{
+				Console.Write("Recepient phone: ");
+				currentRecepient.RecepientPhone = Console.ReadLine();
+			}
+			while (currentRecepient == null);
+
+			recepient = MessendgerDB.Recepients.FirstOrDefault(p => p.RecepientPhone == currentRecepient.RecepientPhone);
+
+			if (recepient == null)
+			{
+				Console.Write("Recepient name (optional) : ");
+				currentRecepient.Name = Console.ReadLine();
+				MessendgerDB.Recepients.Add(currentRecepient);
+				MessendgerDB.SaveChanges();
+				recepient = MessendgerDB.Recepients.FirstOrDefault(p => p.RecepientPhone == currentRecepient.RecepientPhone);
+				//recepient = MessendgerDB.Recepients.Find(currentRecepient.RecepientPhone);
+			}
+
+			Console.WriteLine("Text messege:");
+			message.TextMessage = Console.ReadLine();
+			message.RecepientId = recepient.RecepientId;
+			message.UserId = CurrentUser.UserId;
+
+			MessendgerDB.Massages.Add(message);
+			
+			// can`t save data in Messages table
+			MessendgerDB.SaveChanges(); 
+			
+			Console.WriteLine("Messege are sended. Press any key to continue");
+			Console.ReadKey();
+		}
+
+		static int UserInterface(params string[] menuItems)
 		{
 			short curItem = 0, c;
 			ConsoleKeyInfo key;
-
-			string[] menuItems = { " Autorization", " Registration" };
 
 			do
 			{
@@ -98,20 +174,47 @@ namespace Messenger
 
 			Console.Clear();
 
-			if (curItem == 0)
-				LogIn();
-			else if (curItem == 1)
-				AddUser();
+			return curItem;
 		}
 
 
 		static void Main(string[] args)
         {
             MessendgerDB = new MessandgerContext();
+			int callback;
 
-			StartPage();
+			do
+			{
+				callback = UserInterface(" Autorization", " Registration", "Exit");
 
-			Console.ReadKey();
+				switch (callback)
+				{
+					case 0 :
+						Autorization();
+						break;
+					case 1 :
+						AddUser();
+						break;
+					case 2:
+						return;
+				}
+			}
+			while (!isAutorize);
+
+			do
+			{
+				callback = UserInterface(" New message", " Exit");
+
+				switch (callback)
+				{
+					case 0:
+						NewMessege();
+						break;
+					case 1:
+						return;
+				}
+			}
+			while (true);
         }
     }
 }

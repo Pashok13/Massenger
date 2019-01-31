@@ -15,7 +15,7 @@ namespace Messenger
         public int RecepientId  { get; set; }
         public string Name      { get; set; }
 		private string recepientPhone;
-		private string RecepientPhone
+		public string RecepientPhone
 		{
 			get
 			{
