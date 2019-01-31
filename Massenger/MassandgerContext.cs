@@ -5,15 +5,15 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Data.Entity;
 
-namespace Massenger
+namespace Messenger
 {
-        class MassandgerContext : DbContext
+        class MessandgerContext : DbContext
         {
-            public MassandgerContext() : base("DBConnection")
+            public MessandgerContext() : base("DBConnection")
             { }
 
             public DbSet<Users> Users           { get; set; }
             public DbSet<Recepients> Recepients { get; set; }
-            public DbSet<Massages> Massages     { get; set; }
+            public DbSet<Messages> Massages     { get; set; }
     }
 }
