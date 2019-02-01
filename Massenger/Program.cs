@@ -78,8 +78,7 @@ namespace Messenger
 
 			do
 			{
-				//callback = UserInterface(" Edit message", " Add recepients", " Remove recepients", " Exit");
-				callback = UserInterface(" New message", " Exit");
+				callback = UserInterface(" Send message", " Add text", " Add recepients", " Remove recepients", " Show all recepients" ," Exit");
 
 				switch (callback)
 				{
@@ -87,6 +86,18 @@ namespace Messenger
 						DatabaseFunctions.SendMessege();
 						break;
 					case 1:
+						DatabaseFunctions.AddMessegeText();
+						break;
+					case 2:
+						DatabaseFunctions.AddRecepient();
+						break;
+					case 3:
+						DatabaseFunctions.RemoveRecepient();
+						break;
+					case 4:
+						DatabaseFunctions.ShowAllRecipients();
+						break;
+					case 5:
 						return;
 				}
 			}

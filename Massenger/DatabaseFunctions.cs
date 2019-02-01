@@ -15,6 +15,9 @@ namespace Massenger
 		public static MessandgerContext MessendgerDB;
 		public static bool isAutorize = false;
 		public static Users CurrentUser;
+		public static Recepients CurrentRecepient;
+		public static Messages Message;
+		public static List<Recepients> RecepientsCollection = new List<Recepients>();
 
 		public static void AddUser()
 		{
@@ -102,41 +105,108 @@ namespace Massenger
 
 		public static void SendMessege()
 		{
-			Recepients currentRecepient = new Recepients();
+			if(Message.TextMessage == null)
+			{
+				Console.WriteLine("Please, add a text of messege. Press any key to continue");
+				Console.ReadKey();
+				return;
+			}
+			else if(RecepientsCollection.Count == 0)
+			{
+				Console.WriteLine("Please, add a recepients. Press any key to continue");
+				Console.ReadKey();
+				return;
+			}
+
+			foreach (Recepients rep in RecepientsCollection)
+			{
+				Message.RecepientId = rep.RecepientId;
+				Message.UserId = CurrentUser.UserId;
+
+				MessendgerDB.Massages.Add(Message);
+				MessendgerDB.SaveChanges();
+
+				Messages[] messageArray = new Messages[1];
+				messageArray[0] = Message;
+				SaveInFileJson($"Message № {Message.Id}", messageArray);
+			}
+
+			Console.WriteLine("Messeges are sended. Press any key to continue");
+			Console.ReadKey();
+		}
+
+		public static void AddMessegeText()
+		{
+			Message = new Messages();
+			Console.WriteLine("Text messege:");
+			Console.Write(Message.TextMessage);
+			Message.TextMessage = Console.ReadLine();
+		}
+
+		public static void AddRecepient()
+		{
+			CurrentRecepient = new Recepients();
 			Recepients recepient = new Recepients();
-			Messages message = new Messages();
 
 			do
 			{
 				Console.Write("Recepient phone: ");
-				currentRecepient.RecepientPhone = Console.ReadLine();
+				CurrentRecepient.RecepientPhone = Console.ReadLine();
 			}
-			while (currentRecepient.RecepientPhone == null);
+			while (CurrentRecepient.RecepientPhone == null);
 
-			recepient = MessendgerDB.Recepients.FirstOrDefault(p => p.RecepientPhone == currentRecepient.RecepientPhone);
+			recepient = MessendgerDB.Recepients.FirstOrDefault(p => p.RecepientPhone == CurrentRecepient.RecepientPhone);
 
 			if (recepient == null)
 			{
 				Console.Write("Recepient name (optional) : ");
-				currentRecepient.Name = Console.ReadLine();
-				MessendgerDB.Recepients.Add(currentRecepient);
+				CurrentRecepient.Name = Console.ReadLine();
+				MessendgerDB.Recepients.Add(CurrentRecepient);
 				MessendgerDB.SaveChanges();
-				//recepient = MessendgerDB.Recepients.FirstOrDefault(p => p.RecepientPhone == currentRecepient.RecepientPhone);
+			}
+			else
+			{
+				CurrentRecepient = recepient;
 			}
 
-			Console.WriteLine("Text messege:");
-			message.TextMessage = Console.ReadLine();
-			message.RecepientId = (recepient == null) ? currentRecepient.RecepientId : recepient.RecepientId;
-			message.UserId = CurrentUser.UserId;
+			RecepientsCollection.Add(CurrentRecepient);
 
-			MessendgerDB.Massages.Add(message);
-			MessendgerDB.SaveChanges();
+			Console.WriteLine($"Recepient {CurrentRecepient.Name} are added. Press any key to continue");
+			Console.ReadKey();
+		}
 
-			Messages[] messageArray = new Messages[1];
-			messageArray[0] = message;
-			SaveInFileJson($"Message № {message.Id}", messageArray);
+		public static void RemoveRecepient()
+		{
+			CurrentRecepient = new Recepients();
 
-			Console.WriteLine("Messege are sended. Press any key to continue");
+			do
+			{
+				Console.Write("Recepient phone: ");
+				CurrentRecepient.RecepientPhone = Console.ReadLine();
+			}
+			while (CurrentRecepient.RecepientPhone == null);
+
+			CurrentRecepient = RecepientsCollection.Find(x => x.RecepientPhone.Contains(CurrentRecepient.RecepientPhone));
+			
+			if (CurrentRecepient != null)
+			{
+				RecepientsCollection.Remove(CurrentRecepient);
+				Console.WriteLine($"Recepient {CurrentRecepient.Name} are removed. Press any key to continue");
+			}
+			else
+			{
+				Console.WriteLine($"Recepient not found in your collection. Press any key to continue");
+			}
+
+			Console.ReadKey();
+		}
+
+		public static void ShowAllRecipients()
+		{
+			foreach (Recepients rec in RecepientsCollection)
+				Console.WriteLine($"{rec.RecepientPhone} - {rec.Name}");
+
+			Console.WriteLine("Press any key to back in main menu");
 			Console.ReadKey();
 		}
 
