@@ -6,15 +6,19 @@ using System.Threading.Tasks;
 using System.Collections;
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
+using System.Runtime.Serialization;
 
 namespace Messenger
 {
-    public class Recepients
+	[DataContract]
+	public class Recepients
     {
-        [Key]
-        public int RecepientId  { get; set; }
-        public string Name      { get; set; }
+        [Key] [DataMember]
+		public int RecepientId  { get; set; }
+		[DataMember]
+		public string Name      { get; set; }
 		private string recepientPhone;
+		[DataMember]
 		public string RecepientPhone
 		{
 			get
@@ -37,6 +41,7 @@ namespace Messenger
 			}
 		}
 		private string adress;
+		[DataMember]
 		public string Adress
 		{
 			get

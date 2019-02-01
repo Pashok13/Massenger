@@ -52,7 +52,6 @@ namespace Messenger
 			return curItem;
 		}
 
-
 		static void Main(string[] args)
         {
 			DatabaseFunctions.MessendgerDB = new MessandgerContext();
@@ -78,7 +77,7 @@ namespace Messenger
 
 			do
 			{
-				callback = UserInterface(" Send message", " Add text", " Add recepients", " Remove recepients", " Show all recepients" ," Exit");
+				callback = UserInterface(" Send message", " Add text", " Add recepients", " Remove recepients", " Show all recepients" ," Save recepients list to file", " Brovse recepient from file" ," Exit");
 
 				switch (callback)
 				{
@@ -98,6 +97,12 @@ namespace Messenger
 						DatabaseFunctions.ShowAllRecipients();
 						break;
 					case 5:
+						DatabaseFunctions.SaveRecepientsToFile();
+						break;
+					case 6:
+						DatabaseFunctions.GetRecepientsFromFile();
+						break;
+					case 7:
 						return;
 				}
 			}

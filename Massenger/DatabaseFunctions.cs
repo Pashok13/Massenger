@@ -105,7 +105,7 @@ namespace Massenger
 
 		public static void SendMessege()
 		{
-			if(Message.TextMessage == null)
+			if(Message == null)
 			{
 				Console.WriteLine("Please, add a text of messege. Press any key to continue");
 				Console.ReadKey();
@@ -203,10 +203,72 @@ namespace Massenger
 
 		public static void ShowAllRecipients()
 		{
+			if(RecepientsCollection.Count == 0 )
+			{
+				Console.WriteLine("No such recepients");
+			}
+
 			foreach (Recepients rec in RecepientsCollection)
 				Console.WriteLine($"{rec.RecepientPhone} - {rec.Name}");
 
 			Console.WriteLine("Press any key to back in main menu");
+			Console.ReadKey();
+		}
+
+		public static void SaveRecepientsToFile()
+		{
+			if (RecepientsCollection.Count == 0)
+			{
+				Console.WriteLine("No such recepients");
+			}
+			
+			Recepients[] recepientsArray = new Recepients[RecepientsCollection.Count];
+			string fileName;
+			int i = 0;
+
+			do
+			{
+				Console.Write("Enter file name: ");
+				fileName = Console.ReadLine();
+			}
+			while (fileName == null);
+
+			foreach (Recepients rec in RecepientsCollection)
+			{			
+				recepientsArray[i] = rec;
+				i++;
+			}
+			SaveInFileJson(fileName, recepientsArray);
+
+			Console.WriteLine($"Recepients list are saved in file: {fileName}");
+			Console.WriteLine("Press any key to back in main menu");
+			Console.ReadKey();
+		}
+
+		public static void GetRecepientsFromFile()
+		{
+			Recepients[] recepientsArray;
+
+			Console.Write("Enter file name : ");
+			string fileName = Console.ReadLine();
+
+			try
+			{
+				recepientsArray = GetFromFileJson(fileName);
+			}
+			catch(Exception IvalidFilePath)
+			{
+				Console.WriteLine("Invalid file name. Press any key to continue");
+				Console.ReadKey();
+				return;
+			}
+
+			if (recepientsArray != null)
+			{
+				RecepientsCollection = recepientsArray.ToList();
+				Console.WriteLine("Recepients are successfully download. Press any key to continue");
+			}
+
 			Console.ReadKey();
 		}
 
@@ -218,6 +280,27 @@ namespace Massenger
 			{
 				jsonFormatter.WriteObject(fs, data);
 			}
+		}
+
+		static Recepients[] GetFromFileJson(string FileName)
+		{
+			Recepients[] rec;
+
+			DataContractJsonSerializer jsonFormatter = new DataContractJsonSerializer(typeof(Recepients[]));
+			using (FileStream fs = new FileStream(FileName, FileMode.Open))
+			{
+				try
+				{
+					rec = (Recepients[])jsonFormatter.ReadObject(fs);
+				}
+				catch(Exception InvalidFileData)
+				{
+					Console.WriteLine("Invalid file data. Press any key to continue");
+					return null;
+				}
+			}
+
+			return rec;
 		}
 	}
 }
