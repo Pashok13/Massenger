@@ -54,8 +54,8 @@ namespace Massenger
 			//Recepient.Name = CurrentUser.Name;
 			//Recepient.Adress = CurrentUser.Adress;
 
-			MessendgerDB.Users.Add(CurrentUser);
 			//MessendgerDB.Recepients.Add(Recepient);
+			MessendgerDB.Users.Add(CurrentUser);
 			MessendgerDB.SaveChanges();
 
 			Console.WriteLine($"User {CurrentUser.Name} are sucesfully added!");
@@ -121,13 +121,12 @@ namespace Massenger
 				currentRecepient.Name = Console.ReadLine();
 				MessendgerDB.Recepients.Add(currentRecepient);
 				MessendgerDB.SaveChanges();
-				recepient = MessendgerDB.Recepients.FirstOrDefault(p => p.RecepientPhone == currentRecepient.RecepientPhone);
-				//recepient = MessendgerDB.Recepients.Find(currentRecepient.RecepientPhone);
+				//recepient = MessendgerDB.Recepients.FirstOrDefault(p => p.RecepientPhone == currentRecepient.RecepientPhone);
 			}
 
 			Console.WriteLine("Text messege:");
 			message.TextMessage = Console.ReadLine();
-			message.RecepientId = recepient.RecepientId;
+			message.RecepientId = (recepient == null) ? currentRecepient.RecepientId : recepient.RecepientId;
 			message.UserId = CurrentUser.UserId;
 
 			MessendgerDB.Massages.Add(message);
@@ -135,13 +134,13 @@ namespace Massenger
 
 			Messages[] messageArray = new Messages[1];
 			messageArray[0] = message;
-			SaveInFileJson("Test1", messageArray);
+			SaveInFileJson($"Message № {message.Id}", messageArray);
 
 			Console.WriteLine("Messege are sended. Press any key to continue");
 			Console.ReadKey();
 		}
 
-		public static void SaveInFileJson<T>(string FileName, T[] data)
+		static void SaveInFileJson<T>(string FileName, T[] data)
 		{
 			DataContractJsonSerializer jsonFormatter = new DataContractJsonSerializer(typeof(T[]));
 
@@ -150,21 +149,5 @@ namespace Massenger
 				jsonFormatter.WriteObject(fs, data);
 			}
 		}
-
-		//public static void GetFromFileJson<T>(string FileName)
-		//{
-		//	DataContractJsonSerializer jsonFormatter = new DataContractJsonSerializer(typeof(T));
-
-		//	using (FileStream fs = new FileStream(FileName, FileMode.OpenOrCreate))
-		//	{
-		//		T data = (T)jsonFormatter.ReadObject(fs);
-		//		UserId = users[0].UserId;
-		//		UserPhone = users[0].UserPhone;
-		//		Passeword = users[0].Password;
-		//		FullName = users[0].Name;
-
-		//		Console.WriteLine("{0} {1} {2} {3}", UserId, UserPhone, Passeword, FullName);
-		//	}
-		//}
 	}
 }

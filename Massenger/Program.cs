@@ -13,23 +13,23 @@ namespace Messenger
     {
 		static int UserInterface(params string[] menuItems)
 		{
-			short curItem = 0, c;
+			short curItem = 0, i;
 			ConsoleKeyInfo key;
 
 			do
 			{
 				Console.Clear();
 				Console.WriteLine("Select an option . . .");
-				for (c = 0; c < menuItems.Length; c++)
+				for (i = 0; i < menuItems.Length; i++)
 				{
-					if (curItem == c)
+					if (curItem == i)
 					{
 						Console.Write(">>");
-						Console.WriteLine(menuItems[c]);
+						Console.WriteLine(menuItems[i]);
 					}
 					else
 					{
-						Console.WriteLine(menuItems[c]);
+						Console.WriteLine(menuItems[i]);
 					}
 				}
 
@@ -78,6 +78,7 @@ namespace Messenger
 
 			do
 			{
+				//callback = UserInterface(" Edit message", " Add recepients", " Remove recepients", " Exit");
 				callback = UserInterface(" New message", " Exit");
 
 				switch (callback)
