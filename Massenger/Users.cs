@@ -9,7 +9,7 @@ using System.Text.RegularExpressions;
 
 namespace Messenger
 {
-    class Users
+    public class Users
     {
         [Key]
 		public int UserId		{ get; set; }
@@ -27,7 +27,7 @@ namespace Messenger
 			{ 
 				Regex phone = new Regex(@"^\+\d{12}");
 
-				if (phone.IsMatch(value))
+				if (value != null && phone.IsMatch(value))
 				{
 					userPhone = value;
 				}
@@ -50,7 +50,7 @@ namespace Messenger
 				Regex email = new Regex(@"^(?("")(""[^""]+?""@)|(([0-9a-z]((\.(?!\.))|[-!#\$%&'\*\+/=\?\^`\{\}\|~\w])*)(?<=[0-9a-z])@))" +
 						@"(?(\[)(\[(\d{1,3}\.){3}\d{1,3}\])|(([0-9a-z][-\w]*[0-9a-z]*\.)+[a-z0-9]{2,17}))$");
 
-				if (email.IsMatch(value))
+				if (value != null && email.IsMatch(value))
 				{
 					adress = value;
 				}

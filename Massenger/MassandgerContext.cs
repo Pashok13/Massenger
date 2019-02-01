@@ -7,7 +7,7 @@ using System.Data.Entity;
 
 namespace Messenger
 {
-        class MessandgerContext : DbContext
+        public class MessandgerContext : DbContext
         {
             public MessandgerContext() : base("DBConnection")
             { }
