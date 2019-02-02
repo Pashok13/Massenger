@@ -10,14 +10,14 @@ using System.Threading.Tasks;
 
 namespace Massenger
 {
-	public static class DatabaseFunctions
+	public static class BackEndFunctions
 	{
 		public static MessandgerContext MessendgerDB;
 		public static bool isAutorize = false;
 		public static Users CurrentUser;
 		public static Recepients CurrentRecepient;
-		public static Messages Message;
 		public static List<Recepients> RecepientsCollection = new List<Recepients>();
+		public static string MessageText;
 
 		public static void AddUser()
 		{
@@ -105,7 +105,10 @@ namespace Massenger
 
 		public static void SendMessege()
 		{
-			if(Message == null)
+			int i = 0;
+			Messages Message = new Messages();
+
+			if (MessageText == "")
 			{
 				Console.WriteLine("Please, add a text of messege. Press any key to continue");
 				Console.ReadKey();
@@ -118,18 +121,24 @@ namespace Massenger
 				return;
 			}
 
+			Messages[] messageArray = new Messages[RecepientsCollection.Count];
+
 			foreach (Recepients rep in RecepientsCollection)
 			{
+				Message = new Messages();
 				Message.RecepientId = rep.RecepientId;
 				Message.UserId = CurrentUser.UserId;
-
-				MessendgerDB.Massages.Add(Message);
-				MessendgerDB.SaveChanges();
-
-				Messages[] messageArray = new Messages[1];
-				messageArray[0] = Message;
-				SaveInFileJson($"Message № {Message.Id}", messageArray);
+				Message.TextMessage = MessageText;
+				MessendgerDB.Massages.Add(Message);		
+				messageArray[i] = Message;
+				i++;
 			}
+			MessendgerDB.SaveChanges();
+
+			if (RecepientsCollection.Count == 1)
+				SaveInFileJson($"Message № {Message.Id}", messageArray);
+			else
+				SaveInFileJson($"Message № {Message.Id - RecepientsCollection.Count + 1} - {Message.Id}", messageArray);
 
 			Console.WriteLine("Messeges are sended. Press any key to continue");
 			Console.ReadKey();
@@ -137,10 +146,8 @@ namespace Massenger
 
 		public static void AddMessegeText()
 		{
-			Message = new Messages();
 			Console.WriteLine("Text messege:");
-			Console.Write(Message.TextMessage);
-			Message.TextMessage = Console.ReadLine();
+			MessageText = Console.ReadLine();
 		}
 
 		public static void AddRecepient()
@@ -219,7 +226,9 @@ namespace Massenger
 		{
 			if (RecepientsCollection.Count == 0)
 			{
-				Console.WriteLine("No such recepients");
+				Console.WriteLine("No such recepients. Press any key to continue");
+				Console.ReadKey();
+				return;
 			}
 			
 			Recepients[] recepientsArray = new Recepients[RecepientsCollection.Count];
@@ -241,7 +250,7 @@ namespace Massenger
 			SaveInFileJson(fileName, recepientsArray);
 
 			Console.WriteLine($"Recepients list are saved in file: {fileName}");
-			Console.WriteLine("Press any key to back in main menu");
+			Console.WriteLine("Press any key to back in menu");
 			Console.ReadKey();
 		}
 
@@ -256,7 +265,7 @@ namespace Massenger
 			{
 				recepientsArray = GetFromFileJson(fileName);
 			}
-			catch(Exception IvalidFilePath)
+			catch(FileNotFoundException)
 			{
 				Console.WriteLine("Invalid file name. Press any key to continue");
 				Console.ReadKey();
@@ -266,10 +275,41 @@ namespace Massenger
 			if (recepientsArray != null)
 			{
 				RecepientsCollection = recepientsArray.ToList();
-				Console.WriteLine("Recepients are successfully download. Press any key to continue");
+
+				if (AddUnknownRecepientsToDataBase(RecepientsCollection))
+				{
+					Console.WriteLine("Recepients are successfully download. Press any key to continue");
+				}
 			}
 
 			Console.ReadKey();
+		}
+
+		static bool AddUnknownRecepientsToDataBase(List<Recepients> recepientsList)
+		{
+			foreach (Recepients res in RecepientsCollection)
+			{
+				Recepients notedRecepient;
+
+				try
+				{
+					notedRecepient = MessendgerDB.Recepients.FirstOrDefault(p => p.RecepientPhone == res.RecepientPhone);
+
+					if (notedRecepient == null)
+					{
+						MessendgerDB.Recepients.Add(res);
+					}
+				}
+				catch (Exception)
+				{
+					Console.WriteLine("Incomplete important data in JSON file. Press any key to continue");
+					Console.ReadKey();
+					return false;
+				}
+			}
+
+			MessendgerDB.SaveChanges();
+			return true;
 		}
 
 		static void SaveInFileJson<T>(string FileName, T[] data)
@@ -284,23 +324,51 @@ namespace Massenger
 
 		static Recepients[] GetFromFileJson(string FileName)
 		{
-			Recepients[] rec;
+			Recepients[] recArray;
 
 			DataContractJsonSerializer jsonFormatter = new DataContractJsonSerializer(typeof(Recepients[]));
 			using (FileStream fs = new FileStream(FileName, FileMode.Open))
 			{
 				try
 				{
-					rec = (Recepients[])jsonFormatter.ReadObject(fs);
+					recArray = (Recepients[])jsonFormatter.ReadObject(fs);
 				}
-				catch(Exception InvalidFileData)
+				catch(Exception)
 				{
 					Console.WriteLine("Invalid file data. Press any key to continue");
 					return null;
 				}
 			}
 
-			return rec;
+			return recArray;
+		}
+
+		public static void ShowUserStory()
+		{
+			var messages = MessendgerDB.Massages.Join
+			(MessendgerDB.Recepients, m => m.RecepientId, r => r.RecepientId, (m, c) => new
+			{
+				Name = c.Name,
+				Text = m.TextMessage,
+				Date = m.DateOfSend,
+				Time = m.TimeOfSend,
+			});
+
+			foreach (var message in messages)
+			{
+				Console.WriteLine($"To:   {message.Name}");
+				Console.WriteLine($"Date: {message.Date.ToShortDateString()}");
+				Console.WriteLine($"Time: {message.Time.Hours}:{message.Time.Minutes}:{message.Time.Seconds}");
+				Console.WriteLine("Text:");
+				Console.WriteLine("");
+				Console.WriteLine(message.Text);
+				Console.WriteLine("");
+				Console.WriteLine(new string('*', 25));
+				Console.WriteLine("");
+			}
+
+			Console.WriteLine("Press any key to continue");
+			Console.ReadKey();
 		}
 	}
 }
