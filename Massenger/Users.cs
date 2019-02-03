@@ -1,33 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Collections;
 using System.ComponentModel.DataAnnotations;
-using System.Text.RegularExpressions;
+using Massenger;
 
 namespace Messenger
 {
-    public class Users
+    public class User
     {
         [Key]
 		public int UserId		{ get; set; }
 		public string Name		{ get; set; }
 		public string Password	{ get; set; }
 		private string userPhone;
+		[Required]
 		public string UserPhone
 		{
-			get
-			{
-				return userPhone;
-			}
+			get { return userPhone; }
 
 			set
-			{ 
-				Regex phone = new Regex(@"^\+\d{12}");
-
-				if (value != null && phone.IsMatch(value))
+			{
+				if (value != null && BackEndFunctions.IsValidPhone(value))
 				{
 					userPhone = value;
 				}
@@ -38,19 +30,14 @@ namespace Messenger
 			}
 		}
 		private string adress;
+		[Required]
 		public string Adress
 		{
-			get 
-			{
-				return adress;
-			}
+			get { return adress; }
 
-			set	
+			set
 			{
-				Regex email = new Regex(@"^(?("")(""[^""]+?""@)|(([0-9a-z]((\.(?!\.))|[-!#\$%&'\*\+/=\?\^`\{\}\|~\w])*)(?<=[0-9a-z])@))" +
-						@"(?(\[)(\[(\d{1,3}\.){3}\d{1,3}\])|(([0-9a-z][-\w]*[0-9a-z]*\.)+[a-z0-9]{2,17}))$");
-
-				if (value != null && email.IsMatch(value))
+				if (value != null && BackEndFunctions.IsValidEmail(value))
 				{
 					adress = value;
 				}
@@ -61,11 +48,11 @@ namespace Messenger
 			}
 		}
 
-        public ICollection<Messages> MessageCollection { get; set; }
+        public ICollection<Message> MessageCollection { get; set; }
 
-        public Users()
+        public User()
         {
-            MessageCollection = new List<Messages>();
+            MessageCollection = new List<Message>();
         }
     }
 }

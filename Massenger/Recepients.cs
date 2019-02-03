@@ -1,32 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Collections;
 using System.ComponentModel.DataAnnotations;
-using System.Text.RegularExpressions;
+using System.Runtime.Serialization;
+using Massenger;
 
 namespace Messenger
 {
-    public class Recepients
+	[DataContract]
+	public class Recepient
     {
-        [Key]
-        public int RecepientId  { get; set; }
-        public string Name      { get; set; }
+        [Key] [DataMember]
+		public int RecepientId  { get; set; }
+		[DataMember]
+		public string Name      { get; set; }
 		private string recepientPhone;
+		[DataMember] [Required]
 		public string RecepientPhone
 		{
-			get
-			{
-				return recepientPhone;
-			}
+			get {return recepientPhone;}
 
 			set
 			{
-				Regex phone = new Regex(@"^\+\d{12}");
-
-				if (value != null && phone.IsMatch(value))
+				if (value != null &&BackEndFunctions.IsValidPhone(value))
 				{
 					recepientPhone = value;
 				}
@@ -37,19 +32,14 @@ namespace Messenger
 			}
 		}
 		private string adress;
+		[DataMember]
 		public string Adress
 		{
-			get
-			{
-				return adress;
-			}
+			get {return adress;}
 
 			set
 			{
-				Regex email = new Regex(@"^(?("")(""[^""]+?""@)|(([0-9a-z]((\.(?!\.))|[-!#\$%&'\*\+/=\?\^`\{\}\|~\w])*)(?<=[0-9a-z])@))" +
-						@"(?(\[)(\[(\d{1,3}\.){3}\d{1,3}\])|(([0-9a-z][-\w]*[0-9a-z]*\.)+[a-z0-9]{2,17}))$");
-
-				if (value != null && email.IsMatch(value))
+				if (value != null && BackEndFunctions.IsValidEmail(value))
 				{
 					adress = value;
 				}
@@ -60,11 +50,11 @@ namespace Messenger
 			}
 		}
 
-		public ICollection<Messages> MassageCollection { get; set; }
+		public ICollection<Message> MassageCollection { get; set; }
 
-        public Recepients()
+        public Recepient()
         {
-            MassageCollection = new List<Messages>();
+            MassageCollection = new List<Message>();
         }
     }
 }
