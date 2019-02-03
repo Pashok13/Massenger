@@ -53,6 +53,11 @@
   <ItemGroup>
     <Compile Include="BackEndFunctions.cs" />
     <Compile Include="Massages.cs" />
+    <Compile Include="Migrations\201902031444110_AddCompanyMigration.cs" />
+    <Compile Include="Migrations\201902031444110_AddCompanyMigration.Designer.cs">
+      <DependentUpon>201902031444110_AddCompanyMigration.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Recepients.cs" />
@@ -68,6 +73,11 @@
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\201902031444110_AddCompanyMigration.resx">
+      <DependentUpon>201902031444110_AddCompanyMigration.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

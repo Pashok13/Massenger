@@ -12,38 +12,38 @@ namespace Messenger
 		public string Name		{ get; set; }
 		public string Password	{ get; set; }
 		private string userPhone;
+		[Required]
 		public string UserPhone
 		{
 			get { return userPhone; }
 
 			set
 			{
-				if (BackEndFunctions.IsValidPhone(value))
+				if (value != null && BackEndFunctions.IsValidPhone(value))
 				{
 					userPhone = value;
 				}
 				else
 				{
 					Console.WriteLine("Incorrect phone number!");
-					userPhone = null;
 				}
 			}
 		}
 		private string adress;
+		[Required]
 		public string Adress
 		{
 			get { return adress; }
 
 			set
 			{
-				if (BackEndFunctions.IsValidEmail(value))
+				if (value != null && BackEndFunctions.IsValidEmail(value))
 				{
 					adress = value;
 				}
 				else
 				{
 					Console.WriteLine("Incorrect e-mail adress!");
-					adress = null;
 				}
 			}
 		}

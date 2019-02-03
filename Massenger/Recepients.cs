@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
+using System.Text.RegularExpressions;
 using Massenger;
 
 namespace Messenger
@@ -14,21 +15,20 @@ namespace Messenger
 		[DataMember]
 		public string Name      { get; set; }
 		private string recepientPhone;
-		[DataMember]
+		[DataMember] [Required]
 		public string RecepientPhone
 		{
 			get {return recepientPhone;}
 
 			set
 			{
-				if (BackEndFunctions.IsValidPhone(value))
+				if (value != null &&BackEndFunctions.IsValidPhone(value))
 				{
 					recepientPhone = value;
 				}
 				else
 				{
 					Console.WriteLine("Incorrect phone number!");
-					recepientPhone = null;
 				}
 			}
 		}
@@ -40,7 +40,7 @@ namespace Messenger
 
 			set
 			{
-				if (BackEndFunctions.IsValidEmail(value))
+				if (value != null && BackEndFunctions.IsValidEmail(value))
 				{
 					adress = value;
 				}

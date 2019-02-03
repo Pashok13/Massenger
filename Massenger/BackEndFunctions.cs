@@ -271,11 +271,11 @@ namespace Massenger
 
 			try
 			{
-				recepientsArray = GetFromFileJson(fileName);
+				GetFromFileJson(fileName, out recepientsArray);
 			}
 			catch(FileNotFoundException)
 			{
-				Console.WriteLine("Invalid file name. Press any key to continue");
+				Console.WriteLine($"File {fileName} not found. Press any key to continue");
 				Console.ReadKey();
 				return;
 			}
@@ -284,7 +284,7 @@ namespace Massenger
 			{
 				RecepientsCollection = recepientsArray.ToList();
 
-				if (AddUnknownRecepientsToDataBase(RecepientsCollection))
+				if (AddNewToDataBase(RecepientsCollection))
 				{
 					Console.WriteLine("Recepients are successfully download. Press any key to continue");
 				}
@@ -293,7 +293,7 @@ namespace Massenger
 			Console.ReadKey();
 		}
 
-		static bool AddUnknownRecepientsToDataBase(List<Recepient> recepientsList)
+		public static bool AddNewToDataBase(List<Recepient> recepientsList)
 		{
 			foreach (Recepient res in RecepientsCollection)
 			{
@@ -306,17 +306,17 @@ namespace Massenger
 					if (notedRecepient == null)
 					{
 						MessendgerDB.Recepients.Add(res);
+						MessendgerDB.SaveChanges();
 					}
 				}
 				catch (Exception)
 				{
 					Console.WriteLine("Incomplete important data in JSON file. Press any key to continue");
-					Console.ReadKey();
+					RecepientsCollection.Clear();
 					return false;
 				}
 			}
-
-			MessendgerDB.SaveChanges();
+	
 			return true;
 		}
 
@@ -330,25 +330,21 @@ namespace Massenger
 			}
 		}
 
-		static Recepient[] GetFromFileJson(string FileName)
+		static void GetFromFileJson<T>(string FileName, out T[] array)
 		{
-			Recepient[] recArray;
-
-			DataContractJsonSerializer jsonFormatter = new DataContractJsonSerializer(typeof(Recepient[]));
+			DataContractJsonSerializer jsonFormatter = new DataContractJsonSerializer(typeof(T[]));
 			using (FileStream fs = new FileStream(FileName, FileMode.Open))
 			{
 				try
 				{
-					recArray = (Recepient[])jsonFormatter.ReadObject(fs);
+					array = (T[])jsonFormatter.ReadObject(fs);
 				}
-				catch(Exception)
+				catch (Exception)
 				{
 					Console.WriteLine("Invalid file data. Press any key to continue");
-					return null;
+					array = null;
 				}
 			}
-
-			return recArray;
 		}
 
 		public static void ShowUserStory()
