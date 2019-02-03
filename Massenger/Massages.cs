@@ -6,7 +6,7 @@ using System.Runtime.Serialization;
 namespace Messenger
 {
 	[DataContract]
-	public class Messages
+	public class Message
     {
         [Key] [DataMember]
         public int Id				{ get; set; }
@@ -20,11 +20,11 @@ namespace Messenger
 		public string TextMessage   { get; set; }
 
         [ForeignKey("UserId")]
-		public Users User           { get; set; }
+		public User User           { get; set; }
         [ForeignKey("RecepientId")]
-        public Recepients Recepient { get; set; }
+        public Recepient Recepient { get; set; }
 
-		public Messages()
+		public Message()
 		{
 			DateOfSend = DateTime.Now.Date;
 			TimeOfSend = DateTime.Now.TimeOfDay;

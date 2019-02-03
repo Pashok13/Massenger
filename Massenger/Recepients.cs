@@ -7,7 +7,7 @@ using Massenger;
 namespace Messenger
 {
 	[DataContract]
-	public class Recepients
+	public class Recepient
     {
         [Key] [DataMember]
 		public int RecepientId  { get; set; }
@@ -51,11 +51,11 @@ namespace Messenger
 			}
 		}
 
-		public ICollection<Messages> MassageCollection { get; set; }
+		public ICollection<Message> MassageCollection { get; set; }
 
-        public Recepients()
+        public Recepient()
         {
-            MassageCollection = new List<Messages>();
+            MassageCollection = new List<Message>();
         }
     }
 }

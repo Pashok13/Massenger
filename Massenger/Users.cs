@@ -5,7 +5,7 @@ using Massenger;
 
 namespace Messenger
 {
-    public class Users
+    public class User
     {
         [Key]
 		public int UserId		{ get; set; }
@@ -48,11 +48,11 @@ namespace Messenger
 			}
 		}
 
-        public ICollection<Messages> MessageCollection { get; set; }
+        public ICollection<Message> MessageCollection { get; set; }
 
-        public Users()
+        public User()
         {
-            MessageCollection = new List<Messages>();
+            MessageCollection = new List<Message>();
         }
     }
 }

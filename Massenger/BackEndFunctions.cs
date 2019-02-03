@@ -12,17 +12,16 @@ namespace Massenger
 	{
 		public static MessandgerContext MessendgerDB;
 		public static bool isAutorize = false;
-		static Users CurrentUser;
-		static Recepients CurrentRecepient;
-		static List<Recepients> RecepientsCollection = new List<Recepients>();
+		static User CurrentUser;
+		static Recepient CurrentRecepient;
+		static List<Recepient> RecepientsCollection = new List<Recepient>();
 		static string MessageText;
 
 		public static void AddUser()
 		{
-			CurrentUser = new Users();
+			CurrentUser = new User();
 
 			Console.WriteLine("Input user data:");
-
 			Console.Write("Name: ");
 			CurrentUser.Name = Console.ReadLine();
 
@@ -31,7 +30,8 @@ namespace Massenger
 				Console.Write("Number: ");
 				CurrentUser.UserPhone = Console.ReadLine();
 
-				Users alreadyRegisteredUser = MessendgerDB.Users.FirstOrDefault(p => p.UserPhone == CurrentUser.UserPhone);
+				User alreadyRegisteredUser = MessendgerDB.Users.FirstOrDefault(p => p.UserPhone == CurrentUser.UserPhone);
+				
 				if (alreadyRegisteredUser != null)
 				{
 					Console.Clear();
@@ -55,8 +55,8 @@ namespace Massenger
 			//Recepients Recepient = new Recepients();
 			//Recepient.Name = CurrentUser.Name;
 			//Recepient.Adress = CurrentUser.Adress;
-
 			//MessendgerDB.Recepients.Add(Recepient);
+
 			MessendgerDB.Users.Add(CurrentUser);
 			MessendgerDB.SaveChanges();
 
@@ -114,7 +114,7 @@ namespace Massenger
 		public static void SendMessege()
 		{
 			int i = 0;
-			Messages Message = new Messages();
+			Message Message = new Message();
 
 			if (MessageText == "")
 			{
@@ -129,11 +129,11 @@ namespace Massenger
 				return;
 			}
 
-			Messages[] messageArray = new Messages[RecepientsCollection.Count];
+			Message[] messageArray = new Message[RecepientsCollection.Count];
 
-			foreach (Recepients rep in RecepientsCollection)
+			foreach (Recepient rep in RecepientsCollection)
 			{
-				Message = new Messages();
+				Message = new Message();
 				Message.RecepientId = rep.RecepientId;
 				Message.UserId = CurrentUser.UserId;
 				Message.TextMessage = MessageText;
@@ -160,8 +160,8 @@ namespace Massenger
 
 		public static void AddRecepient()
 		{
-			CurrentRecepient = new Recepients();
-			Recepients recepient = new Recepients();
+			CurrentRecepient = new Recepient();
+			Recepient recepient = new Recepient();
 
 			do
 			{
@@ -192,7 +192,7 @@ namespace Massenger
 
 		public static void RemoveRecepient()
 		{
-			CurrentRecepient = new Recepients();
+			CurrentRecepient = new Recepient();
 
 			do
 			{
@@ -223,7 +223,7 @@ namespace Massenger
 				Console.WriteLine("No such recepients");
 			}
 
-			foreach (Recepients rec in RecepientsCollection)
+			foreach (Recepient rec in RecepientsCollection)
 				Console.WriteLine($"{rec.RecepientPhone} - {rec.Name}");
 
 			Console.WriteLine("Press any key to back in main menu");
@@ -239,7 +239,7 @@ namespace Massenger
 				return;
 			}
 			
-			Recepients[] recepientsArray = new Recepients[RecepientsCollection.Count];
+			Recepient[] recepientsArray = new Recepient[RecepientsCollection.Count];
 			string fileName;
 			int i = 0;
 
@@ -250,7 +250,7 @@ namespace Massenger
 			}
 			while (fileName == null);
 
-			foreach (Recepients rec in RecepientsCollection)
+			foreach (Recepient rec in RecepientsCollection)
 			{			
 				recepientsArray[i] = rec;
 				i++;
@@ -264,7 +264,7 @@ namespace Massenger
 
 		public static void GetRecepientsFromFile()
 		{
-			Recepients[] recepientsArray;
+			Recepient[] recepientsArray;
 
 			Console.Write("Enter file name : ");
 			string fileName = Console.ReadLine();
@@ -293,11 +293,11 @@ namespace Massenger
 			Console.ReadKey();
 		}
 
-		static bool AddUnknownRecepientsToDataBase(List<Recepients> recepientsList)
+		static bool AddUnknownRecepientsToDataBase(List<Recepient> recepientsList)
 		{
-			foreach (Recepients res in RecepientsCollection)
+			foreach (Recepient res in RecepientsCollection)
 			{
-				Recepients notedRecepient;
+				Recepient notedRecepient;
 
 				try
 				{
@@ -330,16 +330,16 @@ namespace Massenger
 			}
 		}
 
-		static Recepients[] GetFromFileJson(string FileName)
+		static Recepient[] GetFromFileJson(string FileName)
 		{
-			Recepients[] recArray;
+			Recepient[] recArray;
 
-			DataContractJsonSerializer jsonFormatter = new DataContractJsonSerializer(typeof(Recepients[]));
+			DataContractJsonSerializer jsonFormatter = new DataContractJsonSerializer(typeof(Recepient[]));
 			using (FileStream fs = new FileStream(FileName, FileMode.Open))
 			{
 				try
 				{
-					recArray = (Recepients[])jsonFormatter.ReadObject(fs);
+					recArray = (Recepient[])jsonFormatter.ReadObject(fs);
 				}
 				catch(Exception)
 				{
@@ -362,11 +362,10 @@ namespace Massenger
 			//	m.TimeOfSend,
 			//});
 
-			var messages = from m in MessendgerDB.Massages
-							join r in MessendgerDB.Recepients on m.RecepientId equals r.RecepientId
-							where m.User.UserId == CurrentUser.UserId
-							select new { r.Name, m.TextMessage, m.DateOfSend, m.TimeOfSend };
-
+			var messages =	from mes in MessendgerDB.Massages
+							join rec in MessendgerDB.Recepients on mes.RecepientId equals rec.RecepientId
+							where mes.User.UserId == CurrentUser.UserId
+							select new { rec.Name, mes.TextMessage, mes.DateOfSend, mes.TimeOfSend };
 
 			foreach (var message in messages)
 			{

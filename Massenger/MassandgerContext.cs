@@ -12,8 +12,8 @@ namespace Messenger
             public MessandgerContext() : base("DBConnection")
             { }
 
-            public DbSet<Users> Users           { get; set; }
-            public DbSet<Recepients> Recepients { get; set; }
-            public DbSet<Messages> Massages     { get; set; }
+            public DbSet<User> Users           { get; set; }
+            public DbSet<Recepient> Recepients { get; set; }
+            public DbSet<Message> Massages     { get; set; }
     }
 }
