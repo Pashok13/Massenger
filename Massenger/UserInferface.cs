@@ -7,7 +7,7 @@ namespace Massenger
 	{
 		static int callback;
 
-		static int ShowMenu(string menuName, params string[] menuItems)
+		private static int showMenu(string menuName, params string[] menuItems)
 		{
 			short curItem = 0, i;
 			ConsoleKeyInfo key;
@@ -59,7 +59,7 @@ namespace Massenger
 
 			do
 			{
-				callback = ShowMenu("Please, log in or register", " Autorization", " Registration", " Exit");
+				callback = showMenu("Please, log in or register", " Autorization", " Registration", " Exit");
 
 				switch (callback)
 				{
@@ -82,7 +82,7 @@ namespace Massenger
 		{
 			do
 			{
-				callback = ShowMenu("MAIN MENU", " Send message", " Add text", " Add recepient", " Remove recepient", " Show my recepients", " Other otions", " Exit");
+				callback = showMenu("MAIN MENU", " Send message", " Add text", " Add recepient", " Remove recepient", " Show my recepients", " Other otions", " Exit");
 
 				switch (callback)
 				{
@@ -117,7 +117,7 @@ namespace Massenger
 		{
 			do
 			{
-				callback = ShowMenu("OTHER OPTIONS", " Save recepients list to file", " Brovse recepient from file", " Show messaging story" , " Change password" , " Back to main menu");
+				callback = showMenu("OTHER OPTIONS", " Save recepients list to file", " Brovse recepient from file", " Show messaging story" , " Change password" , " Back to main menu");
 
 				switch (callback)
 				{
@@ -147,7 +147,7 @@ namespace Massenger
 		{
 			do
 			{
-				callback = ShowMenu("Invalid phone number or password", " Recover password", " Back to start menu");
+				callback = showMenu("Invalid phone number or password", " Recover password", " Back to start menu");
 
 				switch (callback)
 				{

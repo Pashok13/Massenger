@@ -14,8 +14,10 @@ namespace Messenger
 		public int UserId			{ get; set; }
 		[DataMember]
 		public int RecepientId		{ get; set; }
-		public DateTime DateOfSend	{ get; set; } 
-        public TimeSpan TimeOfSend  { get; set; }
+		[DataMember]
+		public DateTime DateOfSend	{ get; set; }
+		[DataMember]
+		public TimeSpan TimeOfSend  { get; set; }
 		[DataMember]
 		public string TextMessage   { get; set; }
 

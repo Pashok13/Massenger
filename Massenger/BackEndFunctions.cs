@@ -116,7 +116,7 @@ namespace Massenger
 			int i = 0;
 			Message Message = new Message();
 
-			if (MessageText == "")
+			if (MessageText == null || MessageText == "")
 			{
 				Console.WriteLine("Please, add a text of messege. Press any key to continue");
 				Console.ReadKey();
@@ -144,15 +144,15 @@ namespace Massenger
 			MessendgerDB.SaveChanges();
 
 			if (RecepientsCollection.Count == 1)
-				SaveInFileJson($"Message № {Message.Id}", messageArray);
+				saveInFileJson($"Message № {Message.Id}", messageArray);
 			else
-				SaveInFileJson($"Message № {Message.Id - RecepientsCollection.Count + 1} - {Message.Id}", messageArray);
+				saveInFileJson($"Message № {Message.Id - RecepientsCollection.Count + 1} - {Message.Id}", messageArray);
 
 			Console.WriteLine("Messeges are sended. Press any key to continue");
 			Console.ReadKey();
 		}
 
-		public static void AddMessegeText()
+		public static void AddMessegeText()	
 		{
 			Console.WriteLine("Text messege:");
 			MessageText = Console.ReadLine();
@@ -255,7 +255,7 @@ namespace Massenger
 				recepientsArray[i] = rec;
 				i++;
 			}
-			SaveInFileJson(fileName, recepientsArray);
+			saveInFileJson(fileName, recepientsArray);
 
 			Console.WriteLine($"Recepients list are saved in file: {fileName}");
 			Console.WriteLine("Press any key to back in menu");
@@ -271,7 +271,7 @@ namespace Massenger
 
 			try
 			{
-				GetFromFileJson(fileName, out recepientsArray);
+				getFromFileJson(fileName, out recepientsArray);
 			}
 			catch(FileNotFoundException)
 			{
@@ -284,7 +284,7 @@ namespace Massenger
 			{
 				RecepientsCollection = recepientsArray.ToList();
 
-				if (AddNewToDataBase(RecepientsCollection))
+				if (addNewRecepientToDataBase(RecepientsCollection))
 				{
 					Console.WriteLine("Recepients are successfully download. Press any key to continue");
 				}
@@ -293,7 +293,7 @@ namespace Massenger
 			Console.ReadKey();
 		}
 
-		public static bool AddNewToDataBase(List<Recepient> recepientsList)
+		private static bool addNewRecepientToDataBase(List<Recepient> recepientsList)
 		{
 			foreach (Recepient res in RecepientsCollection)
 			{
@@ -301,7 +301,8 @@ namespace Massenger
 
 				try
 				{
-					notedRecepient = MessendgerDB.Recepients.FirstOrDefault(p => p.RecepientPhone == res.RecepientPhone);
+					notedRecepient = MessendgerDB.Recepients.FirstOrDefault
+							(p => p.RecepientPhone == res.RecepientPhone);
 
 					if (notedRecepient == null)
 					{
@@ -320,7 +321,7 @@ namespace Massenger
 			return true;
 		}
 
-		static void SaveInFileJson<T>(string FileName, T[] data)
+		private static void saveInFileJson<T>(string FileName, T[] data)
 		{
 			DataContractJsonSerializer jsonFormatter = new DataContractJsonSerializer(typeof(T[]));
 
@@ -330,7 +331,7 @@ namespace Massenger
 			}
 		}
 
-		static void GetFromFileJson<T>(string FileName, out T[] array)
+		private static void getFromFileJson<T>(string FileName, out T[] array)
 		{
 			DataContractJsonSerializer jsonFormatter = new DataContractJsonSerializer(typeof(T[]));
 			using (FileStream fs = new FileStream(FileName, FileMode.Open))
@@ -443,8 +444,8 @@ namespace Massenger
 
 		public static bool IsValidEmail(string email)
 		{
-			Regex mailTemplate = new Regex(@"^(?("")(""[^""]+?""@)|(([0-9a-z]((\.(?!\.))|[-!#\$%&'\*\+/=\?\^`\{\}\|~\w])*)(?<=[0-9a-z])@))" +
-					@"(?(\[)(\[(\d{1,3}\.){3}\d{1,3}\])|(([0-9a-z][-\w]*[0-9a-z]*\.)+[a-z0-9]{2,17}))$");
+			Regex mailTemplate = new Regex(@"^(?("")(""[^""]+?""@)|(([0-9a-z]((\.(?!\.))|[-!#\$%&'\*\+/=\?\^`\{\}\|~\w])*)
+					(?<=[0-9a-z])@))" + @"(?(\[)(\[(\d{1,3}\.){3}\d{1,3}\])|(([0-9a-z][-\w]*[0-9a-z]*\.)+[a-z0-9]{2,17}))$");
 
 			if (email != null && mailTemplate.IsMatch(email))
 			{
