@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Collections;
 using System.ComponentModel.DataAnnotations;
-using System.Text.RegularExpressions;
+using Massenger;
 
 namespace Messenger
 {
@@ -18,45 +14,36 @@ namespace Messenger
 		private string userPhone;
 		public string UserPhone
 		{
-			get
-			{
-				return userPhone;
-			}
+			get { return userPhone; }
 
 			set
-			{ 
-				Regex phone = new Regex(@"^\+\d{12}");
-
-				if (value != null && phone.IsMatch(value))
+			{
+				if (BackEndFunctions.IsValidPhone(value))
 				{
 					userPhone = value;
 				}
 				else
 				{
 					Console.WriteLine("Incorrect phone number!");
+					userPhone = null;
 				}
 			}
 		}
 		private string adress;
 		public string Adress
 		{
-			get 
-			{
-				return adress;
-			}
+			get { return adress; }
 
-			set	
+			set
 			{
-				Regex email = new Regex(@"^(?("")(""[^""]+?""@)|(([0-9a-z]((\.(?!\.))|[-!#\$%&'\*\+/=\?\^`\{\}\|~\w])*)(?<=[0-9a-z])@))" +
-						@"(?(\[)(\[(\d{1,3}\.){3}\d{1,3}\])|(([0-9a-z][-\w]*[0-9a-z]*\.)+[a-z0-9]{2,17}))$");
-
-				if (value != null && email.IsMatch(value))
+				if (BackEndFunctions.IsValidEmail(value))
 				{
 					adress = value;
 				}
 				else
 				{
 					Console.WriteLine("Incorrect e-mail adress!");
+					adress = null;
 				}
 			}
 		}

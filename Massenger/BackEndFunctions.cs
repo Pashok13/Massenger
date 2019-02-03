@@ -3,10 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
-using System.Text;
-using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 
 namespace Massenger
 {
@@ -14,10 +12,10 @@ namespace Massenger
 	{
 		public static MessandgerContext MessendgerDB;
 		public static bool isAutorize = false;
-		public static Users CurrentUser;
-		public static Recepients CurrentRecepient;
-		public static List<Recepients> RecepientsCollection = new List<Recepients>();
-		public static string MessageText;
+		static Users CurrentUser;
+		static Recepients CurrentRecepient;
+		static List<Recepients> RecepientsCollection = new List<Recepients>();
+		static string MessageText;
 
 		public static void AddUser()
 		{
@@ -32,11 +30,12 @@ namespace Massenger
 			{
 				Console.Write("Number: ");
 				CurrentUser.UserPhone = Console.ReadLine();
+
 				Users alreadyRegisteredUser = MessendgerDB.Users.FirstOrDefault(p => p.UserPhone == CurrentUser.UserPhone);
 				if (alreadyRegisteredUser != null)
 				{
 					Console.Clear();
-					Console.WriteLine(" >> Error: This phone number is already register. Press any button to continue <<");
+					Console.WriteLine("This phone number is already register. Press any button to continue");
 					Console.ReadKey();
 					return;
 				}
@@ -73,8 +72,18 @@ namespace Massenger
 			do
 			{
 				Console.Clear();
-				Console.Write("Number: ");
-				phoneNumber = Console.ReadLine();
+
+				do
+				{
+					Console.Write("Number: ");
+					phoneNumber = Console.ReadLine();
+
+					if (!IsValidPhone(phoneNumber))
+						Console.WriteLine("Incorrect format. Input number in format +xxxxxxxxxxx");
+					else
+						break;
+				}
+				while (true);
 
 				CurrentUser = MessendgerDB.Users.FirstOrDefault(p => p.UserPhone == phoneNumber);
 
@@ -96,8 +105,7 @@ namespace Massenger
 			}
 			else
 			{
-				Console.WriteLine(" >> Error: Invalid data. Please, check in or try again. Press any key to continue<<");
-				Console.ReadKey();
+				UserInferface.RecoverPasswordOrBack();
 				return;
 			}
 
@@ -345,23 +353,29 @@ namespace Massenger
 
 		public static void ShowUserStory()
 		{
-			var messages = MessendgerDB.Massages.Join
-			(MessendgerDB.Recepients, m => m.RecepientId, r => r.RecepientId, (m, c) => new
-			{
-				Name = c.Name,
-				Text = m.TextMessage,
-				Date = m.DateOfSend,
-				Time = m.TimeOfSend,
-			});
+			//var messages = MessendgerDB.Massages.Join
+			//(MessendgerDB.Recepients, m => m.RecepientId, r => r.RecepientId, (m, c) => new
+			//{
+			//	c.Name,
+			//	m.TextMessage,
+			//	m.DateOfSend,
+			//	m.TimeOfSend,
+			//});
+
+			var messages = from m in MessendgerDB.Massages
+							join r in MessendgerDB.Recepients on m.RecepientId equals r.RecepientId
+							where m.User.UserId == CurrentUser.UserId
+							select new { r.Name, m.TextMessage, m.DateOfSend, m.TimeOfSend };
+
 
 			foreach (var message in messages)
 			{
 				Console.WriteLine($"To:   {message.Name}");
-				Console.WriteLine($"Date: {message.Date.ToShortDateString()}");
-				Console.WriteLine($"Time: {message.Time.Hours}:{message.Time.Minutes}:{message.Time.Seconds}");
+				Console.WriteLine($"Date: {message.DateOfSend.ToShortDateString()}");
+				Console.WriteLine($"Time: {message.TimeOfSend.Hours}:{message.TimeOfSend.Minutes}:{message.TimeOfSend.Seconds}");
 				Console.WriteLine("Text:");
 				Console.WriteLine("");
-				Console.WriteLine(message.Text);
+				Console.WriteLine(message.TextMessage);
 				Console.WriteLine("");
 				Console.WriteLine(new string('*', 25));
 				Console.WriteLine("");
@@ -369,6 +383,92 @@ namespace Massenger
 
 			Console.WriteLine("Press any key to continue");
 			Console.ReadKey();
+		}
+
+		public static void RecoverPassword()
+		{
+			string phone;
+
+			do
+			{
+				Console.Write("Phone number: ");
+				phone = Console.ReadLine();
+
+				if (IsValidPhone(phone))
+					break;
+				else
+					Console.WriteLine("Incorrect e-mail adress");
+			}
+			while (true);
+
+			CurrentUser = MessendgerDB.Users.FirstOrDefault(p => p.UserPhone == phone);
+
+			if (CurrentUser != null)
+			{
+				ChangePassword();
+			}
+			else
+			{
+				Console.WriteLine("User with this number not found");
+			}
+		}
+
+		public static void ChangePassword()
+		{
+			string email;
+
+			do
+			{
+				Console.Write("Your e-mail: ");
+				email = Console.ReadLine();
+
+				if (IsValidEmail(email))
+					break;
+				else
+					Console.WriteLine("Incorrect e-mail adress");
+			}
+			while (true);
+
+			if(email == CurrentUser.Adress)
+			{
+				Console.Write("New password: ");
+				CurrentUser.Password = Console.ReadLine();
+				MessendgerDB.SaveChanges();
+				Console.WriteLine("Password are sucesfully changed.Press any key to continue");
+				isAutorize = true;
+			}
+			else
+			{
+				Console.WriteLine("This address is not attached to this phone number");
+			}
+
+			Console.ReadKey();
+
+		}
+
+		public static bool IsValidEmail(string email)
+		{
+			Regex mailTemplate = new Regex(@"^(?("")(""[^""]+?""@)|(([0-9a-z]((\.(?!\.))|[-!#\$%&'\*\+/=\?\^`\{\}\|~\w])*)(?<=[0-9a-z])@))" +
+					@"(?(\[)(\[(\d{1,3}\.){3}\d{1,3}\])|(([0-9a-z][-\w]*[0-9a-z]*\.)+[a-z0-9]{2,17}))$");
+
+			if (email != null && mailTemplate.IsMatch(email))
+			{
+				return true;
+			}
+
+			return false;
+		}
+
+		public static bool IsValidPhone(string number)
+		{
+			Regex numberTemplate = new Regex(@"^\+\d{12}");
+
+			if (number != null && numberTemplate.IsMatch(number))
+			{
+				return true;
+			}
+
+			return false;
 		}
 	}
 }

@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using static System.Console;
 
 namespace Massenger
 {
@@ -17,22 +14,22 @@ namespace Massenger
 
 			do
 			{
-				Console.Clear();
-				Console.WriteLine(menuName);
+				Clear();
+				WriteLine(menuName);
 				for (i = 0; i < menuItems.Length; i++)
 				{
 					if (curItem == i)
 					{
-						Console.Write(">>");
-						Console.WriteLine(menuItems[i]);
+						Write(">>");
+						WriteLine(menuItems[i]);
 					}
 					else
 					{
-						Console.WriteLine(menuItems[i]);
+						WriteLine(menuItems[i]);
 					}
 				}
 
-				key = Console.ReadKey(true);
+				key = ReadKey(true);
 
 				if (key.Key.ToString() == "DownArrow")
 				{
@@ -44,21 +41,21 @@ namespace Massenger
 					curItem--;
 					if (curItem < 0) curItem = Convert.ToInt16(menuItems.Length - 1);
 				}
-				else if (key.Key.ToString() == "Backspace")
+				else if (key.Key.ToString() == "Escape")
 				{
 					return -1;
 				}
 
 			} while (key.KeyChar != 13);
 
-			Console.Clear();
+			Clear();
 
 			return curItem;
 		}
 
 		public static void StartPage()
 		{
-			Console.Title = "Messenger";
+			Title = "Messenger";
 
 			do
 			{
@@ -120,7 +117,7 @@ namespace Massenger
 		{
 			do
 			{
-				callback = ShowMenu("OTHER OPTIONS", " Save recepients list to file", " Brovse recepient from file", " Show messaging story (beta)" , " Back to main menu");
+				callback = ShowMenu("OTHER OPTIONS", " Save recepients list to file", " Brovse recepient from file", " Show messaging story" , " Change password" , " Back to main menu");
 
 				switch (callback)
 				{
@@ -134,6 +131,9 @@ namespace Massenger
 						BackEndFunctions.ShowUserStory();
 						break;
 					case 3:
+						BackEndFunctions.ChangePassword();
+						break;
+					case 4:
 						return;
 					case -1:
 						return;
@@ -141,6 +141,26 @@ namespace Massenger
 
 			}
 			while (true);
+		}
+
+		public static void RecoverPasswordOrBack()
+		{
+			do
+			{
+				callback = ShowMenu("Invalid phone number or password", " Recover password", " Back to start menu");
+
+				switch (callback)
+				{
+					case 0:
+						BackEndFunctions.RecoverPassword();
+						break;
+					case 1:
+						return;
+					case -1:
+						return;
+				}
+			}
+			while (!BackEndFunctions.isAutorize);
 		}
 	}
 }

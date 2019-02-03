@@ -15,7 +15,9 @@ namespace Messenger
 			BackEndFunctions.MessendgerDB = new MessandgerContext();
 
 			UserInferface.StartPage();
-			UserInferface.MainMenu();
+
+			if(BackEndFunctions.isAutorize)
+				UserInferface.MainMenu();
         }
     }
 }
